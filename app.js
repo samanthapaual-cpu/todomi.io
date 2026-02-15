@@ -1,44 +1,45 @@
-const todoForm = document.querySelector('form');
-const todoInput = document.getElementById('todo-input');
-const todoListUL = document.getElementById('todo-list');
+const todoForm = document.querySelector('form');             //Points to the form, so we can know when the user submits something, and the value will be pass to its JS reference "todoForm".
+const todoInput = document.getElementById('todo-input');     //Points to the input field, so we can get what the user typed, so we have something to display, reference yung  todoInput.
+const todoListUL = document.getElementById('todo-list');     //Now this is the line responsible for displaying the user inputs in our screen. Adds and uptae the list, reference yung todoListUL.
 
-let allTodos = getTodos();
-updateTodoList();
+let allTodos = getTodos();                                   //This was like "let allTodos = []" before, but the problem there was that it never store the todos everytime the page loads. 
+updateTodoList();                                            /*So, I changed it into getTodos(), so it can retrieve data from the local storage
+                                                                Then, updateTodoList() to update the todo-list, like when we add new tasks to the list.*/
 
-todoForm.addEventListener('submit', function(e){
-    e.preventDefault();
-    addTodo();
+todoForm.addEventListener('submit', function(e){            //Adds the event listener to the form, so when we click the add-button, this function will run.
+    e.preventDefault();                                     //The e.preventDefault() prevents reloading the page when the form collects the data, since we might loose what we type in the form. 
+    addTodo();                                              //This is the function when we takes input, under this function we also have the save and update function, so it updates the list and also  save it to the local storage. 
 })
 
-function addTodo(){
-    const todoText = todoInput.value.trim();
-    if (todoText.length > 0){
-        const todoObject = {
-            text: todoText,
+function addTodo(){                                        
+    const todoText = todoInput.value.trim();                //This line gets the data from the input field, then trim the spaces, then pass it to the "todoText".
+    if (todoText.length > 0){                               //This is to make sure the user actually typed something, which prevents empty task  in our list. Length = number of characters in the string.
+        const todoObject = {                                //We created an objects for our todo data, so we can group them; text - for the text the user typed, completed - this is flag to track is the task is done (false for not finish, true for  complete)
+            text: todoText,                                 //The object is inside the if statement, to make sure that we really have something to store, not empty spaces to store. We do not need to create objects, when it is all empty spaces.
             completed: false
         }
-        allTodos.push(todoObject);
-        updateTodoList();
-        saveTodos();
-        todoInput.value = "";
+        allTodos.push(todoObject);                          //This lines adds the new todoObject we created to our array "allTodos", so it can be add to our list. 
+        updateTodoList();                                   //Calls this function to refresh the list on the page, so new task appears.
+        saveTodos();                                        //Saves the tasks on the localStorage, so  even we reload the page, the tasks are still there.
+        todoInput.value = "";                               //This clears the input field after the submission. 
     }
 }
 
-function updateTodoList(){
-    todoListUL.innerHTML = "";
-    allTodos.forEach((todo, todoIndex)=>{
-        todoItem = createTodoItem(todo, todoIndex);
-        todoListUL.append(todoItem);
+function updateTodoList(){                                              
+    todoListUL.innerHTML = "";                              //todoListUL - reference to the <ul> element, where todos are displayed. .innerHTML = "" - clears all existing <li> insde the <ul>.  //So, we can ensure that there won't be duplications. 
+    allTodos.forEach((todo, todoIndex)=>{                   //This is foreach loops, where it loops through each elements in an array; todo - is the current element in an array or the one that holds the value for todoObject, while the todoIndex - is the postion of the element in the array. And thsi enable us to do something about the arrays. 
+        todoItem = createTodoItem(todo, todoIndex);         // Calls the function createTodoItem() and passes  the todo(current) and todoIndex(postion), so it can turn as visible HTML so browser can undeerstand it and display the tasks on the screen.
+        todoListUL.append(todoItem);                        // Adds new <li> element to the <ul> element in the html, the "todoItem" is the <li> element that holds the current todo.
     })
 }
 
 
 function createTodoItem(todo, todoIndex){
-    const todoId = "todo-"+todoIndex;
-    const todoLI = document.createElement("li");
-    const todoText = todo.text;
-    todoLI.className = "todo";
-    todoLI.innerText = todo;
+    const todoId = "todo-"+todoIndex;                       //This line makes unique id for each todo's checkbox(todo-0, so on...), we need this so the browser would know which labels belong to which checkbox.
+    const todoLI = document.createElement("li");            //This createw new html element and <li> specifies the type of element. We need this because the app stores todos in JS object, and the browser cannot understand that, that is why we create html element to make browser understand our data.
+    const todoText = todo.text;                             //Gets the text from the todo object so we can display it in HTML
+    todoLI.className = "todo";                              //Give the <li> elements  the classname "todo", so they all have the same styling and design.
+    todoLI.innerText = todo.text;
     todoLI.innerHTML = `
         <input type="checkbox" id="${todoId}">
                 <label class="custom-checkbox" for="${todoId}">
