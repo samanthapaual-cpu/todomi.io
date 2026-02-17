@@ -39,8 +39,8 @@ function createTodoItem(todo, todoIndex){
     const todoLI = document.createElement("li");            //This createw new html element and <li> specifies the type of element. We need this because the app stores todos in JS object, and the browser cannot understand that, that is why we create html element to make browser understand our data.
     const todoText = todo.text;                             //Gets the text from the todo object so we can display it in HTML
     todoLI.className = "todo";                              //Give the <li> elements  the classname "todo", so they all have the same styling and design.
-    todoLI.innerText = todo.text;
-    todoLI.innerHTML = `
+    todoLI.innerText = todo.text;                           //Sets the text inside the <li>
+    todoLI.innerHTML = `                                    
         <input type="checkbox" id="${todoId}">
                 <label class="custom-checkbox" for="${todoId}">
                     <svg fill="transparent" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
@@ -50,27 +50,52 @@ function createTodoItem(todo, todoIndex){
                 <label for="${todoId}" class="todo-text">
                     ${todoText}
                 </label>
+                <button class = "edit-button">Edit</button>
+                
                 <button class="delete-button">
                     <svg fill="var(--secondary-color)" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
                         <path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/>
                     </svg>
                 </button>
-    `;
+    `;                                                                 //Fills the <li> with all the html needed for a todo; ${todoId} - ensures each checkbox and label pair is unique, ${todoText} - displays the actual todo task typed by the user.
 
-    const deleteButton = todoLI.querySelector(".delete-button");
-    deleteButton.addEventListener("click", ()=>{
-        deleteTodoItem(todoIndex);
+    const deleteButton = todoLI.querySelector(".delete-button");       //Finds the delete-button 
+    deleteButton.addEventListener("click", ()=>{                       //Adds click event listener, and when the button is clicked, it calls the deleteTodoItem(todoIndex)
+        deleteTodoItem(todoIndex);                                     // And remove the task from the array, and update the page.
     })
-    const checkbox = todoLI.querySelector("input");
-    checkbox.addEventListener("change", ()=>{
-        allTodos[todoIndex].completed = checkbox.checked;
-        saveTodos();
+
+    const checkbox = todoLI.querySelector("input");                    //Finds the checkbox, which is stored in the variable called "checkbox"
+    checkbox.addEventListener("change", ()=>{                          //Eventlisterner for checkbox which performs checked or unchecked
+        allTodos[todoIndex].completed = checkbox.checked;              //This updates the todo object's completed status: checkbox.checked - true if check, false if not.
+        saveTodos();                                                   //Saves the updated list in local storage
     })
-    checkbox.checked = todo.completed;
-    return todoLI;
+    checkbox.checked = todo.completed;  
+
+
+    const editButton = todoLI.querySelector(".edit-button");
+    const textLabel = todoLI.querySelector(".todo-text");
+
+    editButton.addEventListener("click", () => {
+        const input = document.createElement("input");
+        input.type = "text";
+        input.value = todo.text;
+
+        todoLI.replaceChild(input, textLabel);
+        input.focus();
+
+        const finish = () => {
+            allTodos[todoIndex].text = input.value.trim() || todo.text;
+            saveTodos();
+            updateTodoList();
+        };
+
+        input.addEventListener("keydown", e => e.key === "Enter" && finish());
+        input.addEventListener("blur",)
+    })
+    return todoLI;                                                     //Sends back the element, so it can be display on the page.
 }
 
-function deleteTodoItem(todoIndex){
+function deleteTodoItem(todoIndex){                                    
     allTodos = allTodos.filter((_, i)=> i !== todoIndex);
     saveTodos();
     updateTodoList();
